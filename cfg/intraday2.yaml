@@ -1,0 +1,49 @@
+# Intraday research, second pass.
+#
+# The first pass produced a vol-targeted SPY+QQQ hold that traded 22 times in
+# 3.6 years, and the risk gate clipped 81% of its intents -- almost all
+# `position_cap`. With `max_position_pct: 0.25` a two-name strategy is
+# structurally capped at 50% gross, so its "half the drawdown at half the
+# exposure" was the limit, not a design choice, and every parameter
+# perturbation landed on a number the gate had already overridden.
+#
+# The limits below are looser on CONCENTRATION and unchanged on everything
+# else. A strategy may now put half its book in one name, which lets a
+# genuinely concentrated intraday idea be measured as written rather than as
+# filtered. Costs stay exactly as unkind as before -- that is the honest part
+# and loosening it would just manufacture a winner.
+
+strategy: strategies/momo.py      # a placeholder; research picks what to run
+tickers: [SPY, QQQ, NVDA, AAPL, MSFT, AMZN, META, TSLA]
+timeframe: 15m
+source: alpaca
+regular_hours: true               # 09:30-16:00 ET, 26 bars a session
+
+start: 2023-01-03
+end: 2026-08-27
+cash: 100000
+benchmark: SPY
+warmup: 80
+
+params: {}
+
+fills:
+  mode: next_open
+  slippage_bps: 8
+  commission_per_order: 0.0
+  commission_per_share: 0.005
+  partial_fill_volume_pct: 0.05
+
+limits:
+  # 0.50, not 0.25. A two-name book can now reach full exposure, and a
+  # conviction trade is not silently halved before it is measured. This is the
+  # single change from cfg/intraday.yaml.
+  max_position_pct: 0.50
+  max_positions: 4
+  max_gross_exposure: 1.0
+  max_daily_loss_pct: 0.04
+  max_orders_per_day: 120
+  min_order_notional: 100
+
+origin: human
+notes: "intraday pass 2: position cap raised to 0.50 so concentration is measured, not clipped"

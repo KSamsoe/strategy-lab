@@ -1,0 +1,44 @@
+# The no-keys config. `lab demo` seeds synthetic bars for this universe (plus
+# the benchmark) and this file points a backtest at them, so the whole MCP path
+# -- backtest, review, benchmark, paired bootstrap, permutation null, the
+# `audit_run` prompt -- works on a fresh checkout with no credentials.
+#
+# THIS IS NOT A RESULT. The bars come from lab/adapters/synthetic.py; every
+# number this config produces describes the generator, not a market. What it
+# proves is the plumbing: that each answer arrives with its caveat.
+
+strategy: strategies/momo.py
+tickers: cfg/universe.txt
+timeframe: 1d
+source: synthetic
+start: 2022-01-01
+end: 2024-01-01
+cash: 100000
+benchmark: SPY
+
+params:
+  lookback: 126
+  top_n: 4
+  trend_ma: 200
+  exit_rank_buffer: 2
+  atr_len: 14
+  atr_stop_mult: 3.0
+  min_history: 210
+
+warmup: 210
+
+fills:
+  mode: next_open
+  slippage_bps: 5
+  partial_fill_volume_pct: 0.05
+
+limits:
+  max_position_pct: 0.30
+  max_positions: 5
+  max_gross_exposure: 1.0
+  max_daily_loss_pct: 0.10
+  max_orders_per_day: 20
+  min_order_notional: 50
+
+origin: human
+notes: "synthetic demo -- describes the generator, not a market"

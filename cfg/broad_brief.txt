@@ -1,0 +1,73 @@
+Find something that works on a broad universe WITHOUT a tailwind. Every previous
+session on this platform ran on 21 megacap technology names over 2021-2026, and
+that turned out to be the whole story. Read the next paragraph carefully, because
+it is the reason this session exists.
+
+WHAT THE LAST WINNER ACTUALLY WAS. A strategy called blend_tilt (SPY core plus a
+momentum tilt into the top 4 names by blended 63/126-day momentum, trend-gated)
+returned +231% against SPY's +74% on that narrow universe and was promoted. Run
+UNCHANGED on this broad universe over the same dates, same data source, same
+parameters, it returns +71.6% against SPY's +76.9% -- it loses. The entire edge
+was the ticker list. Momentum ranking inside a basket of megacap tech selects
+NVDA, and NVDA carried 34.5% of the profit. Do not rediscover that trick: here
+there is no basket that only goes up, and any strategy leaning on one name will
+be visible in the review as concentration.
+
+THE BAR, AND IT IS LOWER THAN YOU ARE USED TO. Buy-and-hold SPY over 2005-2026
+returned +830.8% at Sharpe 0.656 with a -55.2% max drawdown. That Sharpe is
+genuinely beatable -- unlike the 1.36 SPY posted in the 2021-2026 tech window --
+and the -55% drawdown is the real opportunity. Something that captures most of
+the return with materially less drawdown would be a real result.
+
+BUT DO NOT JUST DE-LEVER. Holding 60% SPY and 40% cash also cuts the drawdown,
+and it is not a strategy. Watch `oos_exposure`: if your Sharpe improves only
+because you are half invested, you have found leverage reduction, not skill. The
+test is whether you beat SPY per unit of risk AT COMPARABLE EXPOSURE, or capture
+clearly more return at the same risk.
+
+SIZE TO THE LIMITS RATHER THAN FIGHTING THEM. The risk gate here allows at most
+20% in any one name, 20 positions, 6 names and 40% of the book per sector, and
+1.0 gross. A strategy asking for 25% slots gets every intent clipped to 20%, and
+then what was backtested is the gate's version of it rather than yours -- check
+`gate.share_clipped_or_blocked` in a review and treat anything above ~50% as a
+reason to resize, not as a result. For reference, stock `momo` with its default
+4 x 25% slots comes back 94% clipped here; the same idea at 5 x 20% would not.
+
+THE REAL BAR IS NOT SPY. Equal-weight buy-and-hold across these 36 names returned
++933.8% at Sharpe 0.798 with 77% average exposure, against SPY's +830.8% at
+0.656. Cap-weighting is the thing to beat only if you cannot beat equal-weight,
+so measure yourself against both -- `full_return_vs_market` compares you to SPY,
+and experiment n=1 will give you the equal-weight number.
+
+2008 IS IN-SAMPLE AND THAT IS DELIBERATE. The in-sample window covers 2005-2022,
+including a -55% market drawdown. A strategy that cannot survive it will show a
+badly negative first sub-period -- check `by_period` before the pooled score.
+Note also that this universe is 32 companies that are still large today, so every
+firm that actually died in 2008 is missing. Your 2008 numbers are therefore
+optimistic by construction; treat a strategy that merely survives it as unproven,
+not as proven.
+
+WHAT THE DATA SAYS, measured rather than assumed, on this kind of universe:
+- Cross-sectional momentum only has signal at ~126 days. Rank correlation between
+  trailing and forward returns is about +0.03 at 126d and indistinguishable from
+  zero at 5, 21 and 63 days -- slightly negative at 21. Short lookbacks are noise.
+- Blending horizons still beats using 126d alone. Weighting the 126d leg to 100%
+  measurably hurt out-of-sample results even though it is the only leg with
+  univariate signal.
+- Volatility is the most predictable quantity here: trailing 21-day realised vol
+  correlates about +0.49 with the next 21 days. Using it to time market exposure
+  barely paid; using it to equalise risk across the names you already hold
+  improved consistency at the cost of return. Both are worth trying properly.
+- Deep drawdowns predicted higher forward returns, but under a 1.0 gross-exposure
+  cap you cannot exploit that without holding cash the rest of the time, and the
+  drag costs more than the boost. Do not spend runs on it.
+
+YOUR HOLDOUT IS UNUSUALLY GOOD. 4.2 years and about 1,048 bars, giving a Sharpe
+standard error near 0.49 -- less than half of what previous sessions had. A gap
+of 0.5 Sharpe here is real signal rather than noise, so you can actually
+distinguish candidates. Use that: it is the first time on this platform that
+ranking has meant much.
+
+Finishing with a well-evidenced "nothing here beats buy-and-hold on a broad
+universe" is a real and useful result, and given what the last session turned out
+to be, an honest negative is worth more than another universe bet in disguise.

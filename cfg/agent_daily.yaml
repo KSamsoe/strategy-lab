@@ -1,0 +1,72 @@
+# Pattern B — agent in the loop. A PLUMBING SMOKE TEST, never a result.
+#
+#   from lab.agent import run_smoke_test
+#   from lab.backtest.runner import BacktestConfig
+#   run_smoke_test(BacktestConfig.from_yaml("cfg/agent_daily.yaml"))
+#
+# Why `contaminated: true` is not optional here: this strategy asks a Claude
+# model for target weights, and the model's training data already contains the
+# outcomes of every historical period you could test it on. Any number this run
+# produces measures whether the plumbing works — prompt, schema, validation,
+# risk gate, journal — and nothing else. `run_smoke_test` sets the flag itself
+# even if you delete it, `refuse_as_validation()` raises on anything tagged with
+# it, and the HTML report prints it in the provenance footer. Real evaluation of
+# a Pattern-B strategy is forward-only, on paper.
+#
+# It also costs money: one Messages API call per session. Keep the range short.
+
+strategy: strategies/agent_daily.py
+tickers:
+  - AAPL
+  - MSFT
+  - NVDA
+  - XOM
+  - JPM
+  - KO
+timeframe: 1d
+start: 2025-09-01
+end: 2025-10-01
+cash: 100000
+contaminated: true
+
+params:
+  model: null                 # null -> settings.agent_model (LAB_AGENT_MODEL)
+  max_positions: 4
+  max_position_pct: 0.15
+  history_bars: 40
+  quoted_closes: 10
+  indicators:
+    - {name: rsi, n: 14}
+    - {name: sma, n: 50}
+    - {name: rolling_vol, n: 20}
+  signal_sources: []          # alt-data text is quoted as data, never as instruction
+  signal_lookback_days: 10
+  max_signals: 20
+  budget_usd: 1.00            # per-run cost ceiling; the strategy stops calling when hit
+  latency_budget_s: 90.0
+  max_tokens: 2048
+  objective: >-
+    Hold a small book of the strongest names in the universe.
+    Prefer cash to a thin thesis.
+
+# Indicators need history before the first decision; without this the agent gets
+# a bundle full of nulls and spends a real API call on it.
+warmup: 50
+
+fills:
+  mode: next_open
+  slippage_bps: 5
+
+# The gate is the disposing half of "the agent proposes, the gate disposes".
+# These are deliberately tighter than the strategy's own max_position_pct, so a
+# model that ignores its instructions still cannot build a concentrated book.
+limits:
+  max_position_pct: 0.10
+  max_positions: 4
+  max_gross_exposure: 0.60
+  max_daily_loss_pct: 0.03
+  max_orders_per_day: 8
+  min_order_notional: 100
+
+origin: human
+notes: "Pattern-B plumbing smoke test — contaminated by construction, not a performance claim"

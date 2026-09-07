@@ -1,0 +1,51 @@
+# Cross-sectional momentum. `lab backtest strategies/momo.py --config cfg/momo.yaml`
+
+strategy: strategies/momo.py
+tickers: cfg/universe.txt      # a path is read as a universe file; a list works too
+timeframe: 1d
+# Which adapter's bars to trade. Only needed when the store holds bars for
+# these tickers from more than one source -- a backtest refuses to guess,
+# because interleaving two feeds builds a price series out of two unrelated
+# universes. `lab data coverage` shows what you have.
+source: alpaca
+start: 2018-01-01
+end: 2026-01-01
+cash: 100000
+benchmark: SPY
+
+# The strategy's declared parameters. Anything here overrides PARAMS in the
+# strategy file, which is what makes sweeps and agent-authored variation a
+# config change rather than an edit.
+params:
+  lookback: 126
+  top_n: 4
+  trend_ma: 200
+  exit_rank_buffer: 2
+  atr_len: 14
+  atr_stop_mult: 3.0
+  min_history: 210
+
+# Skip the first N bars so indicators are warm before the first decision.
+# Without this the opening trades are made on half-formed moving averages.
+warmup: 210
+
+fills:
+  mode: next_open          # next_open | next_close | same_close
+  slippage_bps: 5
+  commission_per_order: 0.0
+  commission_per_share: 0.0
+  # Cap any single fill at this share of the bar's volume, so a backtest cannot
+  # pretend to buy a day's entire float without moving the price.
+  partial_fill_volume_pct: 0.05
+
+# Risk limits for this run. Omit the block to use cfg/limits.yaml defaults.
+limits:
+  max_position_pct: 0.30
+  max_positions: 5
+  max_gross_exposure: 1.0
+  max_daily_loss_pct: 0.10
+  max_orders_per_day: 20
+  min_order_notional: 50
+
+origin: human
+notes: "baseline momentum config"

@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+
+/*
+  The design-token layer.
+
+  This is an instrument panel a solo operator stares at for hours -- not a
+  landing page and not a casino. Two rules follow from that and both are
+  enforced here rather than left to discipline:
+
+  1. COLOR IS RESERVED FOR MEANING. If a hue appears on screen it encodes P&L
+     direction, warning state, or selection. Never decoration. The meaning
+     colors below are the complete set; there is no "brand blue", no gradient,
+     no accent-of-the-week. Reach for --color-ash before reaching for a hue.
+  2. NOTHING GLOWS. The near-black-plus-acid-green trading-terminal cliche is
+     explicitly rejected. The meaning colors are muted on purpose so a screen
+     full of them stays readable.
+*/
+
+@theme {
+  /* --- surfaces ---------------------------------------------------------- */
+  --color-graphite: #14171c; /* page base */
+  --color-gunmetal: #1c2128; /* panels, cards, table headers */
+  --color-slate: #2b323c; /* hairlines, borders, dividers */
+  --color-slate-hi: #3a424e; /* hover borders, focus rings on dark */
+
+  /* --- text -------------------------------------------------------------- */
+  --color-chalk: #e9ecef; /* primary text */
+  --color-ash: #98a2ae; /* secondary text, labels, units */
+  --color-ash-dim: #6b7480; /* tertiary: disabled, placeholder, footnotes */
+
+  /* --- meaning ----------------------------------------------------------- */
+  --color-moss: #6fbf73; /* gains, healthy, pass */
+  --color-ember: #e0654f; /* losses, error, breaker tripped */
+  --color-amber: #d9a441; /* warning, gate clip/block, staleness */
+  --color-teal: #45b2a1; /* THE identity accent: selection, links, playhead */
+
+  /* Low-alpha washes for row/region tints. Never used as text colors. */
+  --color-moss-wash: color-mix(in oklab, #6fbf73 14%, transparent);
+  --color-ember-wash: color-mix(in oklab, #e0654f 14%, transparent);
+  --color-amber-wash: color-mix(in oklab, #d9a441 14%, transparent);
+  --color-teal-wash: color-mix(in oklab, #45b2a1 14%, transparent);
+  --color-oos-wash: color-mix(in oklab, #45b2a1 8%, transparent);
+
+  /* --- type -------------------------------------------------------------- */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-micro: 0.6875rem; /* 11px -- uppercase tracked unit labels */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem; /* the workhorse table size */
+  --text-base: 0.875rem;
+  --text-lg: 1rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.75rem; /* the one big number on a card */
+
+  /* --- density ----------------------------------------------------------- */
+  /* Comfortable-dense by default; the compact toggle swaps the row height
+     variable rather than restyling every table. */
+  --spacing-row: 2rem; /* 32px */
+  --spacing-row-compact: 1.5rem; /* 24px */
+}
+
+:root {
+  color-scheme: dark;
+  --row-h: var(--spacing-row);
+}
+
+:root[data-density="compact"] {
+  --row-h: var(--spacing-row-compact);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-graphite);
+  color: var(--color-chalk);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+  Every number, ticker, timestamp and tape line is set in Plex Mono with
+  TABULAR LINING FIGURES. This is the single most load-bearing typographic
+  decision in the app: it is what stops a column of live values from jittering
+  sideways as digits tick, and what lets decimal points line up down a column
+  without per-cell alignment hacks.
+*/
+.num,
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "zero" 1;
+}
+
+.num {
+  text-align: right;
+}
+
+/* Uppercase tracked micro-labels for units and column heads. */
+.unit {
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ash);
+}
+
+/* Keyboard focus must be visible everywhere -- the kill switch has to be
+   reachable by keyboard from anywhere on the screen. */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/*
+  Motion is spent in exactly one place: a state CHANGE pulses once. A fill row
+  arriving, a breaker tripping. Values updating in place do not animate, and
+  nothing idles -- an instrument panel that shimmers is an instrument panel you
+  stop trusting.
+*/
+@keyframes pulse-once {
+  0% {
+    background-color: var(--color-teal-wash);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.pulse {
+  animation: pulse-once 900ms ease-out 1;
+}
+
+.pulse-warn {
+  animation: pulse-once 900ms ease-out 1;
+  --color-teal-wash: var(--color-amber-wash);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse,
+  .pulse-warn {
+    animation: none;
+  }
+  * {
+    transition-duration: 0ms !important;
+  }
+}
+
+/* Wide content scrolls inside its own container; the page body never scrolls
+   sideways. */
+.scroll-x {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-graphite);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-slate);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-hi);
+}

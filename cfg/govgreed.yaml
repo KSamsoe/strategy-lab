@@ -1,0 +1,95 @@
+# GovGreed composite-signal strategy.
+#   lab govgreed pull                     # daily snapshot, inside the call budget
+#   lab backtest strategies/govgreed_signals.py --config cfg/govgreed.yaml
+#
+# Read this before trusting any number this config produces:
+#
+#   * The vendor offers no historical backfill on the free tier, so the only
+#     signal history that exists is the one `lab govgreed pull` has accumulated
+#     into data/raw/. A backtest here is honest but SHORT, and it is worthless
+#     before the snapshot log has real depth. `lab govgreed status` prints how
+#     much history you actually have.
+#   * Disclosure lag is the whole game. The store serves signals by
+#     knowledge_time, so a congressional trade becomes visible on its disclosure
+#     date, up to 45 days after the trade. Nothing here can opt out of that.
+#   * The vendor's published win rates are unaudited marketing claims, the feed
+#     is delayed by design, and it sells to competing products, so whatever edge
+#     exists is shared. The forward paper log is the only performance number to
+#     treat as real.
+
+strategy: strategies/govgreed_signals.py
+tickers: cfg/universe.txt
+timeframe: 1d
+# Which adapter's bars to trade. Only needed when the store holds bars for
+# these tickers from more than one source -- a backtest refuses to guess,
+# because interleaving two feeds builds a price series out of two unrelated
+# universes. `lab data coverage` shows what you have.
+source: alpaca
+start: 2024-01-01
+cash: 100000
+benchmark: SPY
+
+# Alt-data sources this run may read through ctx.signals(). Without this the
+# strategy sees nothing -- the context serves only what the run declares.
+sources:
+  - govgreed
+
+params:
+  source: govgreed
+  min_tier: A               # composite tier floor
+  require_fresh: true       # the vendor's per-signal freshness flag
+  herd_min_tier: B          # corroboration path 1: herd signal at this tier
+  insider_min_score: 6.0    # corroboration path 2: insider score floor
+  signal_lookback_days: 5   # how stale a pull may be and still count
+  target_pct: 0.05          # <= 5% of equity per position
+  max_new_per_day: 3
+  time_stop_days: 30        # trading days
+  stop_loss_pct: 0.12
+  take_profit_pct: 0.0      # 0 disables
+  cooldown_days: 5
+  exit_on_flip: true
+
+fills:
+  mode: next_open           # signals land overnight; act at the next open
+  slippage_bps: 8           # political-filing names are not always liquid
+  commission_per_order: 0.0
+
+# These mirror the standalone bot's caps (<=5% per position, <=8 concurrent,
+# <=2 per sector) and are enforced by the gate, not by the strategy.
+limits:
+  max_position_pct: 0.05
+  max_positions: 8
+  max_sector_positions: 2
+  max_sector_pct: 0.25
+  max_gross_exposure: 0.80
+  max_daily_loss_pct: 0.03
+  max_orders_per_day: 12
+  min_order_notional: 100
+  cooldown_days: 5
+
+# Sector map for the concentration rules. A ticker missing from this map is
+# exempt from sector limits, so keep it current or keep the universe small.
+sectors:
+  AAPL: Technology
+  MSFT: Technology
+  NVDA: Technology
+  AVGO: Technology
+  GOOGL: Communication
+  META: Communication
+  AMZN: Consumer
+  COST: Consumer
+  HD: Consumer
+  WMT: Consumer
+  PG: Staples
+  KO: Staples
+  JPM: Financials
+  V: Financials
+  XOM: Energy
+  CVX: Energy
+  UNH: Healthcare
+  LLY: Healthcare
+  JNJ: Healthcare
+  MRK: Healthcare
+
+origin: human
+notes: "govgreed v1 entry/exit rules, ported from the standalone bot"

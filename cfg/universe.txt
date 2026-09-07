@@ -1,0 +1,33 @@
+# One ticker per line. Blank lines and everything after `#` are ignored.
+#
+# This is today's list, which means backtests over it carry survivorship bias:
+# names that were delisted or acquired are simply absent, so the surviving
+# sample looks better than the real opportunity set did at the time. A
+# point-in-time universe is the fix and it is not built yet, so every report
+# footer says so. Keep the list small while iterating -- pulls and sweeps both
+# scale with it.
+
+AAPL
+MSFT
+NVDA
+AMZN
+GOOGL
+META
+AVGO
+JPM
+XOM
+UNH
+LLY
+V
+COST
+HD
+PG
+JNJ
+WMT
+CVX
+MRK
+KO
+
+# Benchmark. Pulled like any other ticker; referenced by `benchmark:` in a
+# config rather than traded.
+SPY

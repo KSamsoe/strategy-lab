@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "strategy-lab": {
+      "command": ".venv/Scripts/python.exe",
+      "args": ["-m", "lab.mcp.server"]
+    }
+  }
+}

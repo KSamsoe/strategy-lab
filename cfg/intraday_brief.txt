@@ -1,0 +1,45 @@
+Find an intraday strategy on 15-minute bars that is worth running as a
+RISK-ADJUSTED sleeve, not as an index-beater.
+
+THE TARGET. Beat SPY's risk-adjusted performance over this window: buy-and-hold
+SPY returned +109.3% at Sharpe 1.36 with a -20.8% max drawdown. Beating that on
+Sharpe, with a materially smaller drawdown, is the goal. You are NOT expected to
+beat +109.3% in absolute return -- 2023 to 2026 was a strong bull market and an
+intraday book paying real costs will very likely return less. Say so plainly
+rather than contorting a strategy to chase it. What would make this session a
+success is something with a better Sharpe and a shallower drawdown than SPY,
+even at half the return. What would make it a failure is a high ratio earned by
+sitting in cash: check oos_exposure, and a strategy that is 20% invested and
+returns 5% is not a result.
+
+COSTS ARE THE WHOLE GAME HERE, and they are set deliberately unkind: 8bps of
+slippage plus $0.005 per share, on every fill. For calibration, the stock momo
+strategy re-scaled to 15m returned 36.6% against SPY's 109.3% and paid $3,001
+in commission across 2,833 trades at a turnover of 262. Its problem was not the
+signal, it was the churn. Every additional round trip has to pay for itself.
+Watch `turnover` and the commission line in a review; if turnover is in the
+hundreds, the strategy is feeding the broker.
+
+THE EXISTING STRATEGIES ARE TUNED FOR DAILY BARS. momo's `lookback: 126` means
+126 *bars*, which at 15m is about five sessions, not six months. Before you
+conclude a library strategy does not work intraday, re-scale its windows: one
+session is 26 bars, a week is 130, a month is roughly 550. A strategy that looks
+broken is usually one whose lookback is off by a factor of 26.
+
+WHAT THE SESSION LOOKS LIKE. Regular hours only, 09:30-16:00 ET, 26 bars per
+session, 8 liquid names. There is no overnight bar, so consecutive sessions are
+separated by a gap that never appears as a tradeable move -- a strategy holding
+overnight is exposed to that gap without being able to react to it. Decide
+deliberately whether yours goes flat into the close or carries risk overnight,
+and say which in your verdict. Both are legitimate; pretending the gap is not
+there is not.
+
+BE HONEST ABOUT THE HOLDOUT. It is about nine months of calendar time. More bars
+than a daily study but a SHORTER span, and Sharpe's error bar tracks the span --
+roughly plus or minus 1.18 here. Two strategies inside that of each other are
+not distinguishable, so lean on full-period behaviour, drawdown and per-period
+consistency rather than the fourth decimal of a score.
+
+Finishing with a well-evidenced "nothing here beats holding SPY on a
+risk-adjusted basis at these costs" is a genuine result and a good use of the
+session. Do not manufacture a winner.

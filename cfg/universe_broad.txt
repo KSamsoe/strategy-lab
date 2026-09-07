@@ -1,0 +1,52 @@
+# 32 large caps spanning eight sectors, all listed and trading in 2005, plus SPY
+# as the core/benchmark. Constant membership over the whole window on purpose:
+# a universe whose composition changes mid-test confounds "did the strategy work
+# in 2008" with "did the universe change in 2008".
+#
+# SURVIVORSHIP: these are names that are still large today. Nothing here went to
+# zero, was acquired, or fell out of the index -- Lehman, Bear, Wachovia, GM,
+# Kodak and Sears are all absent because a present-day list cannot contain them.
+# That biases any 2008 result optimistically and no amount of care in the
+# backtester fixes it. Treat this as a regime test, not a performance estimate.
+SPY
+# technology
+MSFT
+AAPL
+INTC
+CSCO
+ORCL
+IBM
+TXN
+QCOM
+ADBE
+# health care
+JNJ
+PFE
+MRK
+ABT
+UNH
+AMGN
+# financials
+JPM
+BAC
+WFC
+GS
+AXP
+# energy
+XOM
+CVX
+COP
+SLB
+# consumer
+PG
+KO
+PEP
+WMT
+MCD
+HD
+NKE
+# industrials / utilities
+CAT
+HON
+UNP
+SO

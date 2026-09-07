@@ -1,0 +1,60 @@
+# Intraday research: 15-minute bars, a small liquid universe.
+#
+# Not a scaled-down daily config. Three things change materially when the bar
+# shrinks, and all three are set deliberately below.
+#
+# 1. COSTS DOMINATE. A daily strategy trading 20x a year barely notices 5bps of
+#    slippage; a 15-minute strategy can trade 20x a week, and the same 5bps then
+#    eats more than most intraday edges are worth. The numbers here are
+#    deliberately unkind -- if a strategy only works at optimistic costs, it does
+#    not work.
+# 2. THE UNIVERSE MUST BE LIQUID. Partial-fill capping is a share of each bar's
+#    volume, and a 15-minute bar has roughly a twentieth of a day's. Eight names
+#    that trade heavily every minute, rather than twenty-one that do not.
+# 3. THE SESSION HAS EDGES. `regular_hours: true` drops the pre- and post-market
+#    bars Alpaca returns (08:00-09:30 and 16:00-16:45 ET), which are thin, gappy
+#    and not where anyone should be discovering an edge.
+
+strategy: strategies/momo.py      # a placeholder; research picks what to run
+tickers: [SPY, QQQ, NVDA, AAPL, MSFT, AMZN, META, TSLA]
+timeframe: 15m
+source: alpaca
+regular_hours: true               # 09:30-16:00 ET only: 26 bars a session
+
+start: 2023-01-03                 # the earliest 15m Alpaca serves on this tier
+end: 2026-08-27
+cash: 100000
+benchmark: SPY
+
+# 26 bars a session, so this is ~3 sessions of history before the first trade.
+# Short in wall-clock terms and long in bar terms -- the thing that matters is
+# whichever indicator window the strategy actually uses.
+warmup: 80
+
+params: {}
+
+fills:
+  mode: next_open                 # decide on a bar's close, fill on the next open
+  # 8bps, not the daily config's 5. A 15-minute bar's spread is wider than a
+  # day's and the strategy crosses it far more often.
+  slippage_bps: 8
+  commission_per_order: 0.0
+  commission_per_share: 0.005     # a real per-share rate; intraday pays it often
+  # A 15-minute bar holds ~1/26th of a session's volume, so the same 5% cap is a
+  # much smaller absolute size. Left at 5% on purpose: it is what stops a
+  # backtest pretending it can buy a quarter of the tape.
+  partial_fill_volume_pct: 0.05
+
+limits:
+  max_position_pct: 0.25
+  max_positions: 4
+  max_gross_exposure: 1.0
+  max_daily_loss_pct: 0.04        # tighter: an intraday strategy can hit this
+  # 26 decision points a session and 8 names. A daily cap of 20 would silently
+  # throttle any strategy that rebalances more than once an hour, which would
+  # look like a bad strategy rather than a clipped one.
+  max_orders_per_day: 120
+  min_order_notional: 100
+
+origin: human
+notes: "intraday research base: 15m, liquid 8, deliberately unkind costs"

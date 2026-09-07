@@ -1,0 +1,54 @@
+Find something that is ACTUALLY INTRADAY and worth running as a risk-adjusted
+sleeve. A previous session on this data did not, and reading why is the fastest
+way to not repeat it.
+
+WHAT WENT WRONG LAST TIME. Ten runs, eight of them variants of one vol-target
+chassis, and the artifact it stood behind traded 22 times in 3.6 years with a
+turnover of 0.24. It was a volatility-scaled SPY+QQQ hold: a slow rebalance
+evaluated on 15-minute bars, not an intraday strategy. It also had 81% of its
+intents clipped by the position cap, so its apparent parameter-insensitivity was
+the risk limit, not the strategy. That cap has been raised from 0.25 to 0.50 for
+this session, so concentration is now measured rather than filtered -- check
+`gate.share_clipped_or_blocked` in a review and treat anything above ~50% as
+"what I backtested is not what I wrote".
+
+WHAT COUNTS AS INTRADAY. Your artifact should act on the intraday structure that
+only exists at this resolution: the open and close, within-session mean
+reversion, the first-hour range, volume or volatility clustering through the
+day, or a reaction that decays within hours. As a rough floor, something that
+trades fewer than a few hundred times across 915 sessions is not using the
+timeframe -- it is a daily strategy wearing 15-minute clothes, and you could
+have found it on daily bars in a twentieth of the time. Report trades and
+trades-per-session in your verdict. This is a floor, not a target: do not churn
+to hit a number, because costs will punish that faster than anything.
+
+EXPLORE MORE THAN ONE IDEA. Last session converged on one family by experiment
+three and never left it. You have limited backtests, so spend them on genuinely
+different mechanisms rather than on the sixth parameterisation of the first
+thing that half-worked. If a family is not showing promise after two runs,
+abandon it -- that is a legitimate and often correct move.
+
+THE TARGET. Beat SPY on a risk-adjusted basis: SPY returned +109.3% at Sharpe
+1.36 with a -20.8% max drawdown over this window. Beating its Sharpe with a
+smaller drawdown is the goal; you are NOT expected to beat +109.3% in absolute
+return. But a high ratio bought by sitting in cash is not a result -- watch
+`oos_exposure`, and if your edge disappears when you are fully invested, it was
+de-levering, not skill.
+
+COSTS ARE THE WHOLE GAME: 8bps slippage plus $0.005 per share on every fill.
+Stock momo re-scaled to 15m returned 36.6% against SPY's 109.3% and paid $3,001
+in commission across 2,833 trades. Its signal was not the problem; its churn
+was. Every round trip must pay for itself.
+
+SCALING: one session is 26 bars, a week is 130, a month is roughly 550. Library
+strategies have DAILY-scaled parameters -- momo's `lookback: 126` is five
+sessions here, not six months. Re-scale before concluding one does not work.
+
+THE HOLDOUT is about eleven months, and Sharpe's error bar on it is roughly plus
+or minus 1.05. Two strategies inside that of each other are not distinguishable;
+lean on full-period behaviour, drawdown and per-period consistency.
+
+Finishing with a well-evidenced "nothing genuinely intraday beats holding SPY
+risk-adjusted at these costs" is a real result and a good use of the session --
+but it only counts if you actually tested intraday mechanics. Last session
+reached that conclusion without ever testing one.

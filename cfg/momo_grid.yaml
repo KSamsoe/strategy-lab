@@ -1,0 +1,26 @@
+# Parameter grid for `lab sweep strategies/momo.py --grid cfg/momo_grid.yaml --walk-forward 4:1`
+#
+# Read the size of this grid before you run it: 4 x 3 x 2 x 3 = 72 combinations.
+# The registry counts every one of them against this strategy's attempt total,
+# on purpose. The lab cannot stop you overfitting; it refuses to let you do it
+# quietly.
+
+base: cfg/momo.yaml
+
+grid:
+  lookback: [63, 126, 189, 252]
+  top_n: [3, 4, 6]
+  trend_ma: [100, 200]
+  atr_stop_mult: [2.0, 3.0, 4.0]
+
+# Which metric ranks the survivors. Scored out-of-sample, always -- optimizing
+# on in-sample numbers is how a sweep runner turns into a random-number
+# generator with good manners.
+metric: sharpe
+
+# Walk-forward split as `train:test` in equal blocks, rolled forward.
+walk_forward: "4:1"
+
+# Refuse to launch a grid bigger than this without an explicit override. A
+# runaway grid is the most common way a research session becomes an accident.
+max_runs: 200

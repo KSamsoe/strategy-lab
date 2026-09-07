@@ -1,0 +1,62 @@
+# blend_tilt on a broader universe and a longer history: the regime test.
+#
+# The strategy was found on 21 megacap-tech names over 2021-2026, a window in
+# which that basket was the best-performing corner of the market. Its +231%
+# against SPY's +74% is therefore not yet evidence that the *method* works -- it
+# is consistent with the method working, and equally consistent with the window
+# having rewarded anything tilted toward large-cap tech.
+#
+# This config changes only the universe and the dates. Every parameter stays
+# exactly as promoted, because the point is to test the strategy rather than to
+# find a version of it that survives.
+#
+# TWO CAVEATS, both material:
+#
+# 1. SOURCE IS YFINANCE, which is unofficial and not something to trade on. It is
+#    used here because Alpaca's tier caps at ~1,530 bars per symbol regardless of
+#    the requested start -- a row limit, not a date limit -- so it cannot reach a
+#    different regime at all. Nothing in this config feeds a live path.
+# 2. SURVIVORSHIP. The universe is 32 companies that are still large today, so
+#    the 2008 window is missing every name that did not survive it. Results from
+#    that period are biased optimistically by construction. `provenance.json`
+#    already says this about every run; it matters far more here than usual.
+
+strategy: strategies/blend_tilt.py
+tickers: cfg/universe_broad.txt
+timeframe: 1d
+source: yfinance          # one source only: interleaving two feeds builds a
+                          # price series out of two unrelated universes
+start: 2005-01-03
+end: 2026-08-27
+cash: 100000
+benchmark: SPY
+
+# Unchanged from the run this was promoted from. Re-tuning here would answer a
+# different and much less interesting question.
+warmup: 210
+params:
+  lb_fast: 63
+  lb_slow: 126
+  top_n: 4
+  core_weight: 0.30
+  tilt_weight: 0.68
+  rebalance_every: 5
+  trend_ma: 200
+
+fills:
+  mode: next_open
+  slippage_bps: 5
+  commission_per_order: 0.0
+  commission_per_share: 0.0
+  partial_fill_volume_pct: 0.05
+
+limits:
+  max_position_pct: 0.30
+  max_positions: 5
+  max_gross_exposure: 1.0
+  max_daily_loss_pct: 0.10
+  max_orders_per_day: 20
+  min_order_notional: 50
+
+origin: human
+notes: "regime test: blend_tilt unchanged, 36-name broad universe, 2005-2026 (yfinance)"

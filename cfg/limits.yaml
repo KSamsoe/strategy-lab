@@ -1,0 +1,55 @@
+# Risk limits — the deterministic wall between any strategy (human-written or
+# agent-driven) and the broker. Loaded by `RiskLimits.from_yaml()`; every key
+# here is a field of `lab.risk.gate.RiskLimits` and an unknown key is a hard
+# error, so a mistyped limit fails at load instead of quietly widening itself.
+#
+# Rules fire in this order and stop at the first block:
+#   kill_switch → breaker → denylist → allowlist → cooldown → position_cap →
+#   position_notional → max_positions → sector_positions → sector_pct →
+#   gross_exposure → max_orders_per_day → min_notional
+#
+# Exits (target 0, or any reduction of an existing position) are never blocked
+# by a capacity rule — only the kill switch stops an exit, and a tripped
+# breaker leaves the exit path open on purpose.
+
+max_position_pct: 0.05        # single-name blast radius: one blow-up costs at most 5% of equity
+max_positions: 8              # concentration floor — 8 names is the least diversification worth running
+max_sector_positions: 2       # stops a "diversified" book that is really one sector bet
+max_sector_pct: 0.25          # …and caps that bet by weight as well as by count
+max_gross_exposure: 1.0       # 1.0 = fully invested, never levered; raise only with a funded margin account
+max_daily_loss_pct: 0.03      # circuit breaker: a 3% session drawdown stops new exposure until a human looks
+max_orders_per_day: 20        # runaway-loop guard — a stuck strategy churns commissions, not a thesis
+min_order_notional: 50.0      # below this the fees and slippage exceed the edge, so do not send it
+cooldown_days: 0              # bars re-entry for N sessions after a reduction; anti-churn, 0 = off
+max_position_notional:        # hard dollar cap per name regardless of equity; null = weight cap only
+
+# Universe control. An empty allowlist means "anything not denied"; a non-empty
+# one is a strict whitelist and everything else is blocked. Deny wins over allow.
+allowlist: []
+denylist: []
+
+# allowlist:                  # e.g. lock a live account to a vetted universe
+#   - AAPL
+#   - MSFT
+#   - SPY
+#
+# denylist:                   # e.g. names under a halt, an earnings blackout, or a personal conflict
+#   - GME
+#   - AMC
+
+# Per-strategy overrides. `RiskLimits.from_yaml()` ignores this block — the
+# caller layers it, because only the caller knows which strategy is running:
+#
+#   raw = yaml.safe_load(Path("cfg/limits.yaml").read_text())
+#   merged = {**{k: v for k, v in raw.items() if k != "strategies"},
+#             **raw.get("strategies", {}).get(name, {})}
+#   limits = RiskLimits.from_mapping(merged)
+#
+# strategies:
+#   momo:                     # a fast strategy gets a tighter order budget
+#     max_orders_per_day: 40
+#     max_position_pct: 0.03
+#   govgreed_follow:          # alt-data signals are sparse: fewer, larger positions
+#     max_positions: 4
+#     max_position_pct: 0.10
+#     cooldown_days: 5

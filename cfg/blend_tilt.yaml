@@ -1,0 +1,61 @@
+# Promoted from run blend_tilt-20260825T015333-212950.
+#
+# The params below are what that run actually resolved, not the strategy
+# file's defaults -- an agent varies params per experiment, so the file
+# alone does not reproduce the result.
+strategy: strategies/blend_tilt.py
+tickers:
+- AAPL
+- MSFT
+- NVDA
+- AMZN
+- GOOGL
+- META
+- AVGO
+- JPM
+- XOM
+- UNH
+- LLY
+- V
+- COST
+- HD
+- PG
+- JNJ
+- WMT
+- CVX
+- MRK
+- KO
+- SPY
+timeframe: 1d
+source: alpaca
+start: '2018-01-01T00:00:00+00:00'
+end: '2026-01-01T00:00:00+00:00'
+cash: 100000
+benchmark: SPY
+warmup: 210
+regular_hours: true
+sources: []
+fills:
+  mode: next_open
+  slippage_bps: 5
+  commission_per_order: 0.0
+  commission_per_share: 0.0
+  partial_fill_volume_pct: 0.05
+limits:
+  max_position_pct: 0.3
+  max_positions: 5
+  max_gross_exposure: 1.0
+  max_daily_loss_pct: 0.1
+  max_orders_per_day: 20
+  min_order_notional: 50
+params:
+  lb_fast: 63
+  lb_slow: 126
+  top_n: 4
+  core_weight: 0.3
+  tilt_weight: 0.68
+  rebalance_every: 5
+  trend_ma: 200
+origin: promoted
+notes: Promoted from blend_tilt-20260825T015333-212950. Params are the ones that run
+  resolved.

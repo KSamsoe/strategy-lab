@@ -1,0 +1,101 @@
+# Research base: broad universe, long history, no tailwind.
+#
+# The narrow 21-name megacap-tech universe turned out to be the entire edge of
+# everything found on this platform so far -- blend_tilt returns +231% against
+# SPY's +74% there and LOSES to SPY on this universe over the same dates with the
+# same parameters. So this config exists to ask whether any method works without
+# that tailwind.
+#
+# TWO CAVEATS, both material:
+#
+# 1. SOURCE IS YFINANCE, which is unofficial and must not feed a live path. It is
+#    used because Alpaca's tier caps at ~1,530 bars per symbol regardless of the
+#    requested start -- a row limit, not a date limit -- so it cannot reach 2008.
+# 2. SURVIVORSHIP. These are 32 companies still large today, so every firm that
+#    died in 2008 is missing. Results from that period are optimistic by
+#    construction. This is a regime test, not a performance estimate.
+
+strategy: strategies/momo.py      # placeholder; research picks what to run
+tickers: cfg/universe_broad.txt
+timeframe: 1d
+source: yfinance                  # one source only -- interleaving two feeds
+                                  # builds a price series from two universes
+start: 2005-01-03
+end: 2026-08-27
+cash: 100000
+benchmark: SPY
+
+# Long enough for a 200-day trend filter to be warm before the first decision.
+warmup: 210
+
+params: {}
+
+fills:
+  mode: next_open
+  slippage_bps: 5
+  commission_per_order: 0.0
+  commission_per_share: 0.0
+  partial_fill_volume_pct: 0.05
+
+# Sized for THIS universe, which is the whole point. The narrow config's
+# `max_positions: 5` was written for 21 names; on 36 it forbids the
+# diversification this session exists to test. Omitting the block entirely is
+# worse still -- the global defaults in cfg/limits.yaml are 5% per name and 8
+# names, a hard 40% ceiling on gross exposure, which would make "do not just
+# de-lever" an instruction no strategy could follow.
+limits:
+  max_position_pct: 0.20          # a conviction slot, without one name owning the book
+  max_positions: 20               # room for a genuinely diversified book on 36 names
+  max_sector_positions: 6         # eight sectors; 6 lets a real sector tilt exist
+  max_sector_pct: 0.40            # ...and caps it by weight as well as by count
+  max_gross_exposure: 1.0
+  max_daily_loss_pct: 0.10
+  max_orders_per_day: 40          # more names means more legitimate rebalancing
+  min_order_notional: 50
+
+# Sector labels, so `max_sector_positions` and `max_sector_pct` are real rules
+# rather than inert ones. Without this mapping `sector_of()` returns None for
+# every name and both limits silently never fire -- which on a broad universe
+# would leave the door open to exactly the single-sector concentration that
+# made the last strategy look like an edge. SPY is labelled `index` so the
+# core holding does not consume a sector slot.
+sectors:
+  SPY: index
+  MSFT: tech
+  AAPL: tech
+  INTC: tech
+  CSCO: tech
+  ORCL: tech
+  IBM: tech
+  TXN: tech
+  QCOM: tech
+  ADBE: tech
+  JNJ: health
+  PFE: health
+  MRK: health
+  ABT: health
+  UNH: health
+  AMGN: health
+  JPM: financials
+  BAC: financials
+  WFC: financials
+  GS: financials
+  AXP: financials
+  XOM: energy
+  CVX: energy
+  COP: energy
+  SLB: energy
+  PG: consumer
+  KO: consumer
+  PEP: consumer
+  WMT: consumer
+  MCD: consumer
+  HD: consumer
+  NKE: consumer
+  CAT: industrials
+  HON: industrials
+  UNP: industrials
+  SO: utilities
+
+origin: human
+notes: "research base: 36-name broad universe, 2005-2026 (yfinance), no tailwind"
